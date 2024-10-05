@@ -27,7 +27,7 @@ export interface IAppApiClient {
 
     openPackageCacheFolder(signal?: AbortSignal | undefined): Promise<void>;
 
-    sendRemoteLog(source: LogSource, logs: RemoteLogMessage[], signal?: AbortSignal | undefined): Promise<void>;
+    sendRemoteLog(source: string | null, logs: RemoteLogMessage[], signal?: AbortSignal | undefined): Promise<void>;
 }
 
 export class AppApiClient extends ApiClientBase implements IAppApiClient {
@@ -275,7 +275,7 @@ export class AppApiClient extends ApiClientBase implements IAppApiClient {
         return Promise.resolve<void>(<any>null);
     }
 
-    sendRemoteLog(source: LogSource, logs: RemoteLogMessage[], signal?: AbortSignal | undefined): Promise<void> {
+    sendRemoteLog(source: string | null, logs: RemoteLogMessage[], signal?: AbortSignal | undefined): Promise<void> {
         let url_ = this.baseUrl + "/app/log/{source}";
         if (source === undefined || source === null)
             throw new Error("The parameter 'source' must be defined.");
@@ -952,7 +952,7 @@ export interface IPackagesApiClient {
 
     search(term: string | null | undefined, skip: number | null | undefined, take: number | null | undefined, includePrerelease: boolean | null | undefined, signal?: AbortSignal | undefined): Promise<PackageMetadata[]>;
 
-    install(packageId: string | null | undefined, packageVersion: string | null | undefined, dotNetFrameworkVersion: DotNetFrameworkVersion | null | undefined, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
+    install(packageId: string | null | undefined, packageVersion: string | null | undefined, dotNetFrameworkVersion: string | null | undefined, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 }
 
 export class PackagesApiClient extends ApiClientBase implements IPackagesApiClient {
@@ -1272,7 +1272,7 @@ export class PackagesApiClient extends ApiClientBase implements IPackagesApiClie
         return Promise.resolve<PackageMetadata[]>(<any>null);
     }
 
-    install(packageId: string | null | undefined, packageVersion: string | null | undefined, dotNetFrameworkVersion: DotNetFrameworkVersion | null | undefined, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
+    install(packageId: string | null | undefined, packageVersion: string | null | undefined, dotNetFrameworkVersion: string | null | undefined, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
         let url_ = this.baseUrl + "/packages/install?";
         if (packageId !== undefined && packageId !== null)
             url_ += "packageId=" + encodeURIComponent("" + packageId) + "&";
@@ -1336,11 +1336,11 @@ export interface IScriptsApiClient {
 
     setReferences(id: string, newReferences: Reference[], signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 
-    setScriptKind(id: string, scriptKind: ScriptKind, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
+    setScriptKind(id: string, scriptKind: string, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 
-    setTargetFrameworkVersion(id: string, targetFrameworkVersion: DotNetFrameworkVersion, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
+    setTargetFrameworkVersion(id: string, targetFrameworkVersion: string, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 
-    setOptimizationLevel(id: string, optimizationLevel: OptimizationLevel, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
+    setOptimizationLevel(id: string, optimizationLevel: string, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 
     setUseAspNet(id: string, useAspNet: boolean, signal?: AbortSignal | undefined): Promise<FileResponse | null>;
 
@@ -1767,7 +1767,7 @@ export class ScriptsApiClient extends ApiClientBase implements IScriptsApiClient
         return Promise.resolve<FileResponse | null>(<any>null);
     }
 
-    setScriptKind(id: string, scriptKind: ScriptKind, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
+    setScriptKind(id: string, scriptKind: string, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
         let url_ = this.baseUrl + "/scripts/{id}/kind";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1807,7 +1807,7 @@ export class ScriptsApiClient extends ApiClientBase implements IScriptsApiClient
         return Promise.resolve<FileResponse | null>(<any>null);
     }
 
-    setTargetFrameworkVersion(id: string, targetFrameworkVersion: DotNetFrameworkVersion, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
+    setTargetFrameworkVersion(id: string, targetFrameworkVersion: string, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
         let url_ = this.baseUrl + "/scripts/{id}/target-framework-version";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -1847,7 +1847,7 @@ export class ScriptsApiClient extends ApiClientBase implements IScriptsApiClient
         return Promise.resolve<FileResponse | null>(<any>null);
     }
 
-    setOptimizationLevel(id: string, optimizationLevel: OptimizationLevel, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
+    setOptimizationLevel(id: string, optimizationLevel: string, signal?: AbortSignal | undefined): Promise<FileResponse | null> {
         let url_ = this.baseUrl + "/scripts/{id}/optimization-level";
         if (id === undefined || id === null)
             throw new Error("The parameter 'id' must be defined.");
@@ -2751,8 +2751,6 @@ export interface ISemanticVersion {
     /** String representation. */
     string: string;
 }
-
-export type LogSource = "WebApp" | "ElectronApp";
 
 export class RemoteLogMessage implements IRemoteLogMessage {
     logger?: string | undefined;
@@ -4260,8 +4258,6 @@ export interface IPackageIdentity {
     version: string;
 }
 
-export type DotNetFrameworkVersion = "DotNet5" | "DotNet6" | "DotNet7" | "DotNet8" | "DotNet9";
-
 export class ScriptSummary implements IScriptSummary {
     id!: string;
     name!: string;
@@ -4418,8 +4414,6 @@ export interface IRunOptions {
 highlighted in the editor. */
     specificCodeToRun?: string | undefined;
 }
-
-export type OptimizationLevel = "Debug" | "Release";
 
 export class ScriptEnvironment implements IScriptEnvironment {
     script!: Script;
@@ -4635,6 +4629,10 @@ export interface IScriptConfig {
     namespaces: string[];
     references: Reference[];
 }
+
+export type DotNetFrameworkVersion = "DotNet5" | "DotNet6" | "DotNet7" | "DotNet8" | "DotNet9";
+
+export type OptimizationLevel = "Debug" | "Release";
 
 export type ScriptStatus = "Ready" | "Running" | "Stopping" | "Error";
 

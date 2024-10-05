@@ -116,7 +116,7 @@ module.exports = function (env, {analyze}) {
             ]
         },
         plugins: [
-            new HtmlWebpackPlugin({template: "index.html", favicon: "../wwwroot/favicon.ico"}),
+            new HtmlWebpackPlugin({template: "index.html"}),
             new Dotenv({
                 path: `./.env${production ? '' : "." + environment}`,
             }),
