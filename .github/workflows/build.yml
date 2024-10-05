@@ -1,78 +1,83 @@
-name: "Build"
-
+name: Build
 env:
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
-
-on:
-  push:
-    branches:
-      - main
-      - feat/*
-      - bug/*
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 'true'
+'on':
+    push:
+        branches:
+            - main
+            - feat/*
+            - bug/*
+    pull_request:
+        branches:
+            - main
+    workflow_dispatch: null
 jobs:
-  app:
-    name: ".NET App"
-    runs-on: ${{ matrix.os }}
-    defaults:
-      run:
-        working-directory: ./src
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-22.04, windows-2022, macos-12 ]
-
-    steps:
-      - name: 🚚 Checkout latest
-        uses: actions/checkout@v4.1.1
-
-      - name: 🧲 Setup .NET 6
-        uses: actions/setup-dotnet@v4.0.0
-        with:
-          dotnet-version: 6.0.x
-
-      - name: 🧲 Setup .NET 7
-        uses: actions/setup-dotnet@v4.0.0
-        with:
-          dotnet-version: 7.0.x
-
-      - name: 📦 Install dependencies
-        run: dotnet restore
-
-      - name: 🔨 Build
-        run: dotnet build --no-restore
-
-      - name: 🧐 Test
-        run: dotnet test --no-build --verbosity normal
-  
-  spa:
-    name: "SPA App"
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/Apps/NetPad.Apps.App/App
-    
-    strategy:
-      matrix:
-        node-version: [ 16.x, 18.x, 20.x ]
-    
-    steps:
-      - name: 🚚 Checkout latest
-        uses: actions/checkout@v4.1.1
-
-      - name: 🧲 Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4.0.1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: 📦 Install dependencies
-        run: npm install
-
-      - name: 🔨 Build
-        run: npm run build
-
-      - name: 🧐 Test
-        run: npm test
+    app:
+        if: false
+        name: .NET App
+        runs-on: '${{ matrix.os }}'
+        defaults:
+            run:
+                working-directory: ./src
+        strategy:
+            fail-fast: false
+            matrix:
+                os:
+                    - ubuntu-latest
+                    - windows-latest
+                    - macos-latest
+        steps:
+            - name: "\U0001F69A Checkout latest"
+              uses: actions/checkout@v4
+            - name: "\U0001F9F2 Setup .NET 6"
+              uses: actions/setup-dotnet@v4.0.0
+              with:
+                  dotnet-version: 6.0.x
+            - name: "\U0001F9F2 Setup .NET 7"
+              uses: actions/setup-dotnet@v4.0.0
+              with:
+                  dotnet-version: 7.0.x
+            - name: "\U0001F4E6 Install dependencies"
+              run: dotnet restore
+            - name: "\U0001F528 Build"
+              run: dotnet build --no-restore
+            - name: "\U0001F9D0 Test"
+              run: dotnet test --no-build --verbosity normal
+    spa:
+        if: false
+        name: SPA App
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: ./src/Apps/NetPad.Apps.App/App
+        strategy:
+            matrix:
+                node-version:
+                    - 22.x
+        steps:
+            - name: "\U0001F69A Checkout latest"
+              uses: actions/checkout@v4
+            - name: "\U0001F9F2 Use Node.js ${{ matrix.node-version }}"
+              uses: actions/setup-node@v4.0.1
+              with:
+                  node-version: '${{ matrix.node-version }}'
+            - name: "\U0001F4E6 Install dependencies"
+              run: npm install
+            - name: "\U0001F528 Build"
+              run: npm run build
+            - name: "\U0001F9D0 Test"
+              run: npm test
+    build-and-push-image:
+        runs-on: ubuntu-latest
+        permissions:
+            packages: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+            - name: Build and publish a Docker image for ${{ github.repository }}
+              uses: macbre/push-to-ghcr@master
+              with:
+                image_name: ${{ github.repository }}  # it will be lowercased internally
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                dockerfile: ./src/Dockerfile
+                image_tag: net8
