@@ -28,7 +28,7 @@ COPY Apps/NetPad.Apps.App/App ./
 RUN npm i --prefer-dedupe
 
 # Prevent cache
-#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # Build the Angular app
 RUN npm run build-web
