@@ -1,5 +1,5 @@
 ﻿**/.dockerignore
-**/.env
+**/dist
 **/.git
 **/.gitignore
 **/.project

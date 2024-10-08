@@ -6,7 +6,7 @@ WORKDIR /app
 
 # Copy the .NET project files
 COPY ./ ./
-#RUN cat -n /usr/share/dotnet/sdk/8.0.402/NuGet.targets | head --lines=222
+
 RUN dotnet restore
 RUN dotnet build ./ --no-restore --configuration Release -v q
 # Copy the rest of the .NET app files
@@ -21,17 +21,14 @@ FROM node:lts AS angular-builder
 # Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY Apps/NetPad.Apps.App/App/package*.json ./
+# Copy the Angular app files
+COPY Apps/NetPad.Apps.App/App ./
 
 # Install Angular dependencies
 RUN npm i --prefer-dedupe
 
 # Prevent cache
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-
-# Copy the Angular app files
-COPY Apps/NetPad.Apps.App/App/ ./
+#ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
 
 # Build the Angular app
 RUN npm run build-web
@@ -49,7 +46,7 @@ RUN apk add --no-cache icu-libs
 WORKDIR /app
 
 # Copy Angular build artifacts to serve using a static file server
-COPY --from=angular-builder /app/dist /wwwroot
+COPY --from=angular-builder /app/dist /app/wwwroot
 
 # Copy the .NET app build artifacts
 COPY --from=dotnet-builder /app/publish .
