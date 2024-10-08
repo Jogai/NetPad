@@ -206,13 +206,13 @@ public class Startup
             endpoints.MapHub<IpcHub>("/ipc-hub");
         });
 
+#if DEBUG
         app.UseSpa(spa =>
         {
             spa.Options.SourcePath = "App";
-#if DEBUG
             spa.UseProxyToSpaDevelopmentServer("http://localhost:9000/");
-#endif
         });
+#endif
 
         Program.Shell?.Initialize(app, env);
     }
